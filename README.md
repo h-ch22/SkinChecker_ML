@@ -1,3 +1,16 @@
-SkinChecker
-=
->Check the depth of pores, the amount of oil, and the degree of wrinkles in ML.
+# SkinChecker<br>
+### Check the depth of pores, the amount of oil, and the degree of wrinkles in ML.<br>
+
+#### Latest Results (Try: 0 - 231109-155903)
+|Class|Loss|MAE|MSE|
+|-----|----|---|---|
+|0|16.894|1.369|2.933|
+|1|0.001|0.028|0.002|
+|2|35.195|3.042|19.633|
+|3|0.001|0.062|0.005|
+|4|425.903|29.466|1899.849|
+|5|323.143|19.360|628.085|
+|6|36.780|3.489|26.409|
+|7|54.248|11.309|159.890|
+|8|265.506|23.931|1454.951|
+|9|284.630|11.535|326.396|

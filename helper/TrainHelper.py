@@ -49,7 +49,7 @@ class TrainHelper:
         for id in ids:
             img_path = DATA_PATH + '/%s' % id.upper() + self.get_file_name(type)
             img = imread(img_path)
-            imgs.append(resize(img, (224, 224, 3)))
+            imgs.append(resize(img, (224, 224, 1)))
 
         y = csv_df[labels[type.value]]
         imgs = np.array(imgs)
@@ -61,7 +61,7 @@ class TrainHelper:
             transforms.ToTensor()
         ])
 
-        X_train, X_test, Y_train, Y_test = train_test_split(imgs, y, test_size=0.1, random_state=1016)
+        X_train, X_test, Y_train, Y_test = train_test_split(imgs, y, test_size=0.2, random_state=1016)
 
         train_dataset = RegressionDataset(X_train, Y_train, transform=transform)
         valid_dataset = RegressionDataset(X_test, Y_test, transform=transform)
