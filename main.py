@@ -1,13 +1,36 @@
+#
+# System Environment
+# OS: Windows 11 22H2(22621.2715)
+# GPU: NVIDIA Geforce RTX 3060
+# RAM: 32GB
+# CUDA 12.3
+# PyTorch 2.1.1
+# Python 3.11
+# Scikit-learn 1.3.2
+# Scikit-image 0.22.0
+# Numpy 1.24.1
+# Pandas 2.1.3
+# Matplotlib 3.8.2
+
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import subprocess
+import sys
 
 from torch.utils.data import DataLoader
-
 from helper.TrainHelper import TrainHelper
 from models.RegressionTypeModel import RegressionTypeModel
 from models.RegressionModel import RegressionModel
-from torchsummary import summary
+
+
+def install_libraries():
+    library_list = ["torch", "torchvision", "torchaudio", "scikit-learn", "scikit-image",
+                    "numpy", "pandas", "matplotlib"]
+
+    for lib in library_list:
+        print("Installing Library %s" % lib)
+        subprocess.check_call([sys.executable, "-m", "pip", "install", lib])
 
 
 def print_result(MAES, MSES, LOSSES):
@@ -72,31 +95,49 @@ def train(type, model, train_dataloader, valid_dataloader):
     return B_LOSS, B_MSE, last_best_mae
 
 
+def write_results(TEST_CSV, TEST_PORTABLE_PATH):
+    results = []
+
+    for i in range(0, 10):
+        test_dataset = helper.test_data_preprocess(RegressionTypeModel(i), TEST_CSV, TEST_PORTABLE_PATH)
+        test_loader = DataLoader(test_dataset)
+        model = torch.load(r'./outputs/best_%d.pt' % i)
+        model = model.to(device)
+
+        for x in test_loader:
+            x = x.to(device)
+            x = x.float()
+            outputs = model(x)
+            results.append(outputs)
+
+    print(results)
+
 if __name__ == '__main__':
-    device = torch.device('mps:0' if torch.backends.mps.is_available() else 'cpu')
+    install_libraries()
+    device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
-    TRAIN_PORTABLE_PATH = r'/Users/hachangjin/Desktop/2023/SkinChecker/DATA/TRAIN/PORTABLE'
-    TRAIN_DETAIL_PATH = r'/Users/hachangjin/Desktop/2023/SkinChecker/DATA/TRAIN/DETAIL'
+    TRAIN_PORTABLE_PATH = r'./data/TRAIN/PORTABLE'
+    TRAIN_DETAIL_PATH = r'./data/TRAIN/DETAIL'
 
-    TEST_PORTABLE_PATH = r'/Users/hachangjin/Desktop/2023/SkinChecker/DATA/TEST/PORTABLE'
-    TEST_DETAIL_PATH = r'/Users/hachangjin/Desktop/2023/SkinChecker/DATA/TEST/DETAIL'
+    TEST_PORTABLE_PATH = r'./data/TEST/PORTABLE'
+    TEST_DETAIL_PATH = r'./data/TEST/DETAIL'
 
-    TRAIN_CSV = r'/Users/hachangjin/Desktop/2023/SkinChecker/DATA/TRAIN.csv'
-    TEST_CSV = r'/Users/hachangjin/Desktop/2023/SkinChecker/DATA/TEST.csv'
+    TRAIN_CSV = r'./data/TRAIN.csv'
+    TEST_CSV = r'./data/TEST.csv'
 
     helper = TrainHelper()
+
+    write_results(TEST_CSV, TEST_PORTABLE_PATH)
 
     model = RegressionModel()
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
 
-    print(summary(model, (1, 224, 224)))
+    model = model.to(device)
 
     MAES = []
     MSES = []
     LOSSES = []
-
-    model = model.to(device)
 
     for i in range(0, 10):
         train_dataset, valid_dataset = helper.data_preprocess(RegressionTypeModel(i), TRAIN_CSV, TRAIN_PORTABLE_PATH)

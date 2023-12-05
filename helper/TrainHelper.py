@@ -67,3 +67,25 @@ class TrainHelper:
         valid_dataset = RegressionDataset(X_test, Y_test, transform=transform)
 
         return train_dataset, valid_dataset
+
+    def test_data_preprocess(self, type: RegressionTypeModel, CSV_PATH, DATA_PATH):
+        csv_df = pd.read_csv(CSV_PATH)
+
+        ids = csv_df['sam_num']
+
+        imgs = []
+
+        for id in ids:
+            img_path = DATA_PATH + '/%s' % id.upper() + self.get_file_name(type)
+            img = imread(img_path)
+            imgs.append(resize(img, (224, 224, 1)))
+
+        imgs = np.array(imgs)
+
+        transform = transforms.Compose([
+            transforms.ToTensor()
+        ])
+
+        test_dataset = TestDataset(imgs, transform=transform)
+
+        return test_dataset

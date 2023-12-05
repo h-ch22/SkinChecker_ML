@@ -1,6 +1,6 @@
 import torch.nn.functional as F
 import torch.nn as nn
-import torch
+
 
 class RegressionModel(nn.Module):
     def __init__(self):
@@ -20,11 +20,10 @@ class RegressionModel(nn.Module):
 
         self.conv5 = nn.Conv2d(256, 512, kernel_size=3, stride=1, padding=1)
 
-        # Adjust the size of the fully connected layers
         self.flatten = nn.Flatten()
         self.fc1 = nn.Linear(512 * 224 // 16 * 224 // 16, 512)
         self.fc2 = nn.Linear(512, 512)
-        self.fc3 = nn.Linear(512, 1)  # Output 1 value for regression
+        self.fc3 = nn.Linear(512, 1)
 
     def forward(self, x):
         x = self.pool1(F.relu(self.conv1(x)))
@@ -36,6 +35,6 @@ class RegressionModel(nn.Module):
         x = self.flatten(x)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        x = self.fc3(x)  # No sigmoid for regression
+        x = self.fc3(x)
 
         return x
